@@ -38,12 +38,12 @@ jobs:
 
           # Copy build output to the appropriate directory in the showcase repo
 
-          touch harborvault/vite-ssr-demo/${GITHUB_REF_NAME}/.server
           mkdir -p harborvault/vite-ssr-demo/${GITHUB_REF_NAME}/build/dist/
           cp server.js harborvault/vite-ssr-demo/${GITHUB_REF_NAME}/build/server.js
           cp -R dist/* harborvault/vite-ssr-demo/${GITHUB_REF_NAME}/build/dist/
 
           echo "Source code available at: https://github.com/sarahrobichaud/vite-ssr-demo/tree/${GITHUB_REF_NAME}" > harborvault/vite-ssr-demo/${GITHUB_REF_NAME}/source-link.txt
+          touch harborvault/vite-ssr-demo/${GITHUB_REF_NAME}/.server
 
           # Commit and push changes to the showcase repo
           cd harborvault
