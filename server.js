@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import express from "express";
+import cors from "cors";
 
 // Constants
 const isProduction = process.env.NODE_ENV === "production";
