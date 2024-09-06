@@ -1,4 +1,4 @@
-name: Deploy build to Dockview Vault
+name: Build and Deploy to Vault Repo (SSR)
 
 on:
   push:
@@ -6,12 +6,9 @@ on:
       - "*-v*.*.*" # This triggers the action on version tags like v1.0.0
 
 env:
-  PROJECT_NAME: vite-ssr-demo # Replace with your project name
+  PROJECT_NAME: node-env-test # Replace with your project name
   DIST_DIR: dist # Replace with your dist directory name if different
-  ENTRY: server.js # Replace with the server file name if different
-  GITHUB_EMAIL: robichaudsarah@outlook.com
-  GITHUB_NAME: Sarah Robichaud
-  GITHUB_USERNAME: sarahrobichaud
+  ENTRY: server.js # Optional entry point file (e.g., server.js)
 
 jobs:
   build:
@@ -37,11 +34,11 @@ jobs:
           name: build-output
           path: ${{ env.DIST_DIR }}
 
-      - name: Conditionally upload server.js
-        if: ${{ steps.build.outcome == 'success' && (env.SERVER_JS && env.SERVER_JS != '') }}
+      - name: Conditionally upload entry file
+        if: ${{ steps.build.outcome == 'success' && (env.ENTRY && env.ENTRY != '') }}
         uses: actions/upload-artifact@v2
         with:
-          name: server-file
+          name: entry-file
           path: ${{ env.ENTRY }}
         continue-on-error: true # Ignore error if file doesn't exist
 
@@ -57,35 +54,37 @@ jobs:
         with:
           name: build-output
 
-      - name: Conditionally download server.js artifact
+      - name: Conditionally download entry file artifact
         if: ${{ steps.build.outcome == 'success' && (env.ENTRY && env.ENTRY != '') }}
         uses: actions/download-artifact@v2
         with:
-          name: server-file
+          name: entry-file
         continue-on-error: true # Ignore error if file doesn't exist
 
       - name: Configure Git
         run: |
-          git config --global user.email "${{ env.GITHUB_EMAIL }}"
-          git config --global user.name "${{ env.GITHUB_NAME }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
 
       - name: Deploy to the central showcase repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Clone the central showcase repository
-          git clone https://$GH_TOKEN@github.com/${{ env.GITHUB_USERNAME }}/harborvault.git
+          git clone https://$GH_TOKEN@github.com/${{ github.actor }}/harborvault.git
+
+          # Create directory structure
+          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${DIST_DIR}/
 
           # Copy build output to the appropriate directory in the showcase repo
-          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}/
-          cp -R ./* harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}/
+          cp -R ${{ env.DIST_DIR }}/* harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${DIST_DIR}/
 
-          # Conditionally copy server.js if it exists
+          # Conditionally copy entry file if it exists
           if [ -f "${{ env.ENTRY }}" ]; then
-            cp ${{ env.ENTRY }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.ENTRY }}
+            cp ${{ env.ENTRY }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${env.ENTRY}
           fi
 
-          echo "Source code available at: https://github.com/${{ env.GITHUB_USERNAME}}/$PROJECT_NAME/tree/${GITHUB_REF_NAME}" > harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/source-link.txt
+          echo "Source code available at: https://github.com/${{ github.actor }}/$PROJECT_NAME/tree/${GITHUB_REF_NAME}" > harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/source-link.txt
 
           # Commit and push changes to the showcase repo
           cd harborvault
