@@ -9,7 +9,7 @@ env:
   PROJECT_NAME: vite-ssr-demo # Replace with your project name
   DIST_DIR: dist # Replace with your dist directory name if different
   ENTRY: server.js # Optional entry point file (e.g., server.js)
-  VAULT_NAME: harborvault.git
+  VAULT_NAME: harborvault
 
 jobs:
   build:
