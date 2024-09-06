@@ -9,6 +9,7 @@ env:
   PROJECT_NAME: vite-ssr-demo # Replace with your project name
   DIST_DIR: dist # Replace with your dist directory name if different
   ENTRY: server.js # Optional entry point file (e.g., server.js)
+  VAULT_NAME: harborvault.git
 
 jobs:
   build:
@@ -58,7 +59,7 @@ jobs:
           name: dist-artifact
 
       - name: Conditionally download entry file artifact
-        if: ${{ steps.build.outcome == 'success' && (env.ENTRY && env.ENTRY != '') }}
+        if: ${{ (env.ENTRY && env.ENTRY != '') }}
         uses: actions/download-artifact@v2
         with:
           name: entry-file
@@ -74,23 +75,23 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           # Clone the central showcase repository
-          git clone https://$GH_TOKEN@github.com/${{ github.actor }}/harborvault.git
+          git clone https://${{ env.GH_TOKEN }}@github.com/${{ github.actor }}/${{ env.VAULT_NAME }}.git
 
           # Create directory structure
-          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
+          mkdir -p ${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
 
           # Copy the entire dist folder to the appropriate directory in the showcase repo
-          cp -R ./${{ env.DIST_DIR }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
+          cp -R ${{ env.DIST_DIR }}/* ${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
 
           # Conditionally copy entry file if it exists
           if [ -f "${{ env.ENTRY }}" ]; then
-            cp entry-file harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${env.ENTRY}
+            cp ${{ env.ENTRY }} ${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.ENTRY}}
           fi
 
-          echo "Source code available at: https://github.com/${{ github.actor }}/$PROJECT_NAME/tree/${GITHUB_REF_NAME}" > harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/source-link.txt
+          echo "Source code available at: https://github.com/${{ github.actor }}/${{ env.PROJECT_NAME }}/tree/${GITHUB_REF_NAME}" > harborvault/${{ env.PROJECT_NAME }}/${{ GITHUB_REF_NAME }}/source-link.txt
 
           # Commit and push changes to the showcase repo
-          cd harborvault
+          cd ${{ env.VAULT_NAME }}
           git add .
           git commit -m "Deploy ${GITHUB_REF_NAME}"
           git push origin main
