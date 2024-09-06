@@ -8,8 +8,8 @@ export default {
   container: {
     image: "node:22-alpine",
   },
-  ports: [5173],
   serve: {
+    ports: [5173],
     command: "npm run preview",
   },
 };

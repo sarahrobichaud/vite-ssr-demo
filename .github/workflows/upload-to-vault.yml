@@ -6,7 +6,7 @@ on:
       - "*-v*.*.*" # This triggers the action on version tags like v1.0.0
 
 env:
-  PROJECT_NAME: vite-ssr-demo # Replace with your project name
+  PROJECT_NAME: node-env # Replace with your project name
   DIST_DIR: dist # Replace with your dist directory name if different
   ENTRY: server.js # Optional entry point file (e.g., server.js)
   VAULT_NAME: harborvault
@@ -77,11 +77,20 @@ jobs:
           # Clone the central showcase repository
           git clone https://${{ env.GH_TOKEN }}@github.com/${{ github.actor }}/${{ env.VAULT_NAME }}.git
 
-          # Create directory structure
-          mkdir -p ${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
+
+           # Define the target directory for this project and version
+          TARGET_DIR="${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}"
+
+          # Remove existing directory if it exists
+          if [ -d "$TARGET_DIR" ]; then
+            rm -rf "$TARGET_DIR"
+          fi
+
+          # Create the directory structure again
+          mkdir -p "$TARGET_DIR"
 
           # Copy the entire dist folder to the appropriate directory in the showcase repo
-          cp -R ${{ env.DIST_DIR }}/* ${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
+          cp -R ${{ env.DIST_DIR }}/* "$TARGET_DIR"
 
           # Conditionally copy entry file if it exists
           if [ -f "${{ env.ENTRY }}" ]; then
