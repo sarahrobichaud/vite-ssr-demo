@@ -8,7 +8,6 @@ declare module "dockview" {
 
   // Command configuration for environments that require it (like Node)
   interface DKNodeEnvConfig {
-    ports: number[]; // List of ports to expose (e.g., ['80'] for static files)
     command: string; // The command to run (e.g., 'npm start')
   }
 
@@ -19,9 +18,15 @@ declare module "dockview" {
   }
 
   // Dev, build, and serve configurations extend DKNodeEnvConfig
-  interface DKDevConfig extends DKNodeEnvConfig {}
+  interface DKDevConfig extends DKNodeEnvConfig {
+    ports: number[];
+  }
+
+  interface DKServeConfig extends DKNodeEnvConfig {
+    ports: number[];
+  }
+
   interface DKBuildConfig extends DKNodeEnvConfig {}
-  interface DKServeConfig extends DKNodeEnvConfig {}
 
   // Supported environments: Node or Static
   type DKEnvironment = "node" | "static" | "custom";
