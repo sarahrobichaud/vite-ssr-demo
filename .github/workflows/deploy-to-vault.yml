@@ -1,4 +1,4 @@
-name: Upload to Dockview Vault
+name: Upload to Vault Repo
 
 on:
   push:
@@ -28,14 +28,17 @@ jobs:
       - name: Build the project
         run: npm run build
 
+      - name: Prepare artifact directory
+        run: mkdir -p artifact && cp -r ${{ env.DIST_DIR }} artifact/
+
       - name: Upload dist directory (including the folder itself)
         uses: actions/upload-artifact@v2
         with:
-          name: build-output
-          path: ${{ env.DIST_DIR }}/ # This ensures the dist folder itself is uploaded
+          name: dist-artifact
+          path: artifact/
 
       - name: Conditionally upload entry file
-        if: ${{ steps.build.outcome == 'success' && (env.ENTRY && env.ENTRY != '') }}
+        if: ${{ (env.ENTRY && env.ENTRY != '') }}
         uses: actions/upload-artifact@v2
         with:
           name: entry-file
@@ -74,14 +77,14 @@ jobs:
           git clone https://$GH_TOKEN@github.com/${{ github.actor }}/harborvault.git
 
           # Create directory structure
-          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/
+          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
 
           # Copy the entire dist folder to the appropriate directory in the showcase repo
-          cp -R ${{ env.DIST_DIR }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/
+          cp -R ./${{ env.DIST_DIR }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}
 
           # Conditionally copy entry file if it exists
           if [ -f "${{ env.ENTRY }}" ]; then
-            cp ${{ env.ENTRY }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${env.ENTRY}
+            cp entry-file harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${env.ENTRY}
           fi
 
           echo "Source code available at: https://github.com/${{ github.actor }}/$PROJECT_NAME/tree/${GITHUB_REF_NAME}" > harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/source-link.txt
