@@ -1,4 +1,4 @@
-name: Build and Deploy to Vault Repo (SSR)
+name: Upload to Dockview Vault
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "*-v*.*.*" # This triggers the action on version tags like v1.0.0
 
 env:
-  PROJECT_NAME: node-env-test # Replace with your project name
+  PROJECT_NAME: vite-ssr-demo # Replace with your project name
   DIST_DIR: dist # Replace with your dist directory name if different
   ENTRY: server.js # Optional entry point file (e.g., server.js)
 
@@ -28,11 +28,11 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      - name: Upload dist directory
+      - name: Upload dist directory (including the folder itself)
         uses: actions/upload-artifact@v2
         with:
           name: build-output
-          path: ${{ env.DIST_DIR }}
+          path: ${{ env.DIST_DIR }}/ # This ensures the dist folder itself is uploaded
 
       - name: Conditionally upload entry file
         if: ${{ steps.build.outcome == 'success' && (env.ENTRY && env.ENTRY != '') }}
@@ -49,7 +49,7 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v2
 
-      - name: Download dist artifact
+      - name: Download dist artifact (including folder)
         uses: actions/download-artifact@v2
         with:
           name: build-output
@@ -74,10 +74,10 @@ jobs:
           git clone https://$GH_TOKEN@github.com/${{ github.actor }}/harborvault.git
 
           # Create directory structure
-          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${DIST_DIR}/
+          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/
 
-          # Copy build output to the appropriate directory in the showcase repo
-          cp -R ${{ env.DIST_DIR }}/* harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${DIST_DIR}/
+          # Copy the entire dist folder to the appropriate directory in the showcase repo
+          cp -R ${{ env.DIST_DIR }} harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/
 
           # Conditionally copy entry file if it exists
           if [ -f "${{ env.ENTRY }}" ]; then
