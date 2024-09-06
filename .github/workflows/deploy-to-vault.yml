@@ -77,8 +77,8 @@ jobs:
           git clone https://$GH_TOKEN@github.com/${{ env.GITHUB_USERNAME }}/harborvault.git
 
           # Copy build output to the appropriate directory in the showcase repo
-          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${DIST_DIR}/
-          cp -R ${{ env.DIST_DIR }}/* harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${DIST_DIR}/
+          mkdir -p harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}/
+          cp -R ./* harborvault/$PROJECT_NAME/${GITHUB_REF_NAME}/build/${{ env.DIST_DIR }}/
 
           # Conditionally copy server.js if it exists
           if [ -f "${{ env.ENTRY }}" ]; then
