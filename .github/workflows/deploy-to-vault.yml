@@ -55,7 +55,7 @@ jobs:
       - name: Download dist artifact (including folder)
         uses: actions/download-artifact@v2
         with:
-          name: build-output
+          name: dist-artifact
 
       - name: Conditionally download entry file artifact
         if: ${{ steps.build.outcome == 'success' && (env.ENTRY && env.ENTRY != '') }}
