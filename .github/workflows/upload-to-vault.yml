@@ -88,7 +88,7 @@ jobs:
             cp ${{ env.ENTRY }} ${{ env.VAULT_NAME }}/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/build/${{ env.ENTRY}}
           fi
 
-          echo "Source code available at: https://github.com/${{ github.actor }}/${{ env.PROJECT_NAME }}/tree/${GITHUB_REF_NAME}" > harborvault/${{ env.PROJECT_NAME }}/${{ GITHUB_REF_NAME }}/source-link.txt
+          echo "Source code available at: https://github.com/${{ github.actor }}/${{ env.PROJECT_NAME }}/tree/${GITHUB_REF_NAME}" > harborvault/${{ env.PROJECT_NAME }}/${GITHUB_REF_NAME}/source-link.txt
 
           # Commit and push changes to the showcase repo
           cd ${{ env.VAULT_NAME }}
